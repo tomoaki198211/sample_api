@@ -10,6 +10,7 @@ class PostsController < ApplicationController
     # render json: @posts, include: [:user]
     # 最終形態 絞り込んだ後にuserのデータを渡す
     @posts = Post.where(user_id: current_user.id).includes(:user)
+    @images = @posts.map{|post| post.image.url}
     render json: @posts, include: [:user]
   end
 
@@ -22,8 +23,9 @@ class PostsController < ApplicationController
   # POST /posts
   # POST /posts.json
   def create
-    user = User.find_by(email: params[:uid])
-    @post = Post.new(title: params[:title], body: params[:body], user_id: user.id)
+    # user = User.find_by(email: params[:uid])
+    # @post = Post.new(title: params[:title], body: params[:body], user_id: user.id)
+    @post = Post.new(post_params)
     @post.save
   end
 
@@ -51,6 +53,6 @@ class PostsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def post_params
-      params.permit(:title, :body).merge(user: current_user)
+      params.require(:post).permit(:title, :body, :image).merge(user: current_user)
     end
 end
